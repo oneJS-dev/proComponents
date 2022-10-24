@@ -1,0 +1,22 @@
+{
+  "name": "@onejs-dev/procomponents",
+  "version": "0.0.1",
+  "description": "Web and native advanced components for oneJS apps.",
+  "main": "procomponents.js",
+  "react-native": "procomponents.native.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oneJS-dev/procomponents.git"
+  },
+  "author": "oneJS",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oneJS-dev/procomponents/issues"
+  },
+  "homepage": "https://oneJS.dev",
+  "dependencies": {
+    "@onejs-dev/components": "^0.0.17",
+    "@onejs-dev/core": "^0.0.11",
+    "@codesandbox/sandpack-react": "^1.15.2"
+  }
+}
