@@ -1,6 +1,11 @@
 import {
-    Component, BaseComponent, readFlavor, readIconGradient, positionContent, mergeStyles
+    Component, BaseComponent, readFlavor, mergeStyles, media
 } from '@onejs-dev/core';
+import {
+    View, Text, Icon, Modal, Input, HtmlIFrame, HtmlPre, HtmlCode
+} from '@onejs-dev/components';
+
+import React from 'react';
 
 import {Sandpack as _Sandpack} from "@codesandbox/sandpack-react";
 import {
@@ -29,8 +34,6 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
             (e) => setCurrentUrl(decodeURI(location.pathname + location.search)), false);
     }, []);
     if(!(items?.length > 0)) return null;
-    console.log('menuIcon')
-    console.log(menuIcon)
 
     let logoItem;
     if(items[0].logo) logoItem = items[0];
@@ -90,7 +93,9 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
         visibility: 'hidden',
         position: 'absolute',
         top: 80,
-        minWidth: 200,
+        width: 'max-content',
+        // minWidth: 200,
+        maxWidth: 400,
         overflow: 'hidden',
         boxSizing: 'border-box',
         '& p:not(:first-child)': {
@@ -101,8 +106,8 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
     };
     const subitemTextStyle = {
         lineHeight: 3,
-        textAlign: 'center',
-        verticalAlign: 'middle',
+        paddingInline: 20,
+        // textAlign: 'center',
         '&:hover': {
             background: flavor?.lightColor ?? '#ccc'
         }
@@ -163,82 +168,88 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
     }
 
     return [View({
-        type: 'navbar', content: {h: 'center', v: 'center'}, style: navbarStyle, ...attributes
+        type: 'navbar', content: {h: 'center', v: 'center'}, key: 'navbar', style: navbarStyle, 
+        ...attributes
     })([
         //Logo
         logoItem && View({url: logoItem.url, self: {expand: 1}})([Icon({
-            icon: logoItem.logo, size: 'auto', style: logoStyle
+            icon: logoItem.logo, size: 'auto', style: logoStyle, key: 'logo'
         })]),
         //Non-collapsed Items
         View({
             content: {h: 'distribute', v: 'center', gap: 0}, self: {align: 'stretch', expand: 1},
-            style: itemContainerStyle
-        })([items.map(item => {
+            style: itemContainerStyle, key: 'non-collapsed'
+        })([items.map((item, index) => {
             let isActive = matchUrl(item.url, currentUrl);
             let hasSubitems = item.items?.length > 0;
             if(item.logo) return;
             return View({
                 url: item.url, content: {h: 'center', v: 'center', direction: 'column'},
-                self: {shrink: 0, expand: 1}, style: itemStyle
+                self: {shrink: 0, expand: 1}, style: itemStyle, key: index //Important Key
             })([
                 //Item Icon
                 item.icon && Icon({
-                    icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor
+                    icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor, key: 'icon'
                 }),
                 //Item Text
                 item.text && Text({
-                    flavor: isActive ? activeFlavor : inactiveFlavor
+                    flavor: isActive ? activeFlavor : inactiveFlavor, key: 'text'
                 })(item.text + (hasSubitems ? ' 🞃' : '')),
                 //Subitems
                 hasSubitems && View({
-                    content: {h: 'stretch', v: 'center', direction: 'column'}, flavor: flavor,
-                    style: subitemStyle
-                })(item.items.map(subitem => Text({
-                    flavor: flavor, style: subitemTextStyle
+                    content: {h: 'stretch', v: 'left', direction: 'column'}, flavor: flavor,
+                    style: subitemStyle, key: 'view' + index
+                })(item.items.map((subitem, subindex) => Text({
+                    flavor: flavor, style: subitemTextStyle, key: index + subindex //Important Key
                 })(subitem.text)))
             ]);
         })]),
         //Collapsed Items
         Icon({
             icon: menuIcon, flavor: menuVisible ? activeFlavor : inactiveFlavor,
-            onClick: () => setMenuVisible(true), style: menuIconStyle}),   
+            onClick: () => setMenuVisible(true), style: menuIconStyle, key: 'menuIcon' }),  
         ]), Modal({
             visible: menuVisible, style: menuStyle, animation: {visible: ['fade-in', 'fade-out']}, 
-            backdrop: false, flavor: menuFlavor, closeIcon: false,
+            backdrop: false, flavor: menuFlavor, closeIcon: false, key: 'modal',
             footer: [Input({
                 type: 'button', title: 'Close', flavor: readFlavor('reject'), 
                 onClick: () => setMenuVisible(false)
             })]
-        })([
+        })([//Collapsed menu
             View({
                 content: {h: 'left', v: 'top', direction: 'column'}, self: {align: 'stretch'}, 
-                style: {overflow: 'auto'}
-            })([items.map(item => {
+                style: {overflow: 'auto'}, key: 'collapsed' //Important key
+            })([items.map((item, index) => {
                     let isActive = matchUrl(item.url, currentUrl);
                     let hasSubitems = item.items?.length > 0;
                     if(item.logo) return;
-                    return [View({
+                    //Collapsed items
+                    return View({
                         content: {h: 'left', v: 'center', gap: 20}, self: {align: 'stretch'}, 
-                        style: collapsedItemStyle, url: item.url,
+                        style: collapsedItemStyle, url: item.url, key: index,
                         onClick: () => {setMenuVisible(false)}
-                    })([
+                    })([//Collapsed item icon
                         item.icon && Icon({
-                            icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor
+                            icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor, 
+                            key: 'icon'
                         }),
+                        //Collapsed item text
                         item.text && Text({
                             flavor: isActive ? activeFlavor : inactiveFlavor, 
-                            style: collapsedItemTextStyle
+                            style: collapsedItemTextStyle, key: 'text'
                         })(item.text + (hasSubitems ? ' 🞃' : '')),
                     ]),
-                    hasSubitems && item.items.map(subitem => {
+                    //Subitems
+                    hasSubitems && item.items.map((subitem, subindex) => {
                         let isSubitemActive = matchUrl(subitem.url, currentUrl);
                         return View({
-                            self: {align: 'stretch'}, url: subitem.url, 
-                            onClick: () => {setMenuVisible(false)}, style: {cursor: 'pointer'
-                        }})(Text({
+                            self: {align: 'stretch'}, url: subitem.url,
+                            onClick: () => {setMenuVisible(false)}, key: subindex, //Important key
+                            style: {cursor: 'pointer'}
+                        })(Text({
                             flavor: isSubitemActive ? activeFlavor : inactiveFlavor, 
-                            style: collapsedSubitemTextStyle
-                    })(subitem.text))})]
+                            style: collapsedSubitemTextStyle, key: 'text' + subindex
+                    })(subitem.text))})
                 })
             ])
         ])
@@ -316,8 +327,8 @@ export const CodeSandbox = ({source, options = {}, title = '', height = 400, fla
 
     return View({flavor: flavor, ...attributes})(HtmlIFrame({
         src: source,
-        style: `width:100%; height:${height}px; border:0; border-radius:${flavor?.radius ?? 0}px;
-             overflow:hidden;`,
+        style: `width:100%; height:${height}${typeof height === 'number' ? 'px' : ''}; border:0; 
+        border-radius:${flavor?.radius ?? 0}px; overflow:hidden;`,
         title: title,
         allow: `accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope;
              hid; microphone; midi; payment; usb; vr; xr-spatial-tracking`,
@@ -375,11 +386,11 @@ const SandpackCodeViewer = BaseComponent('SandpackCodeViewer', false, _SandpackC
 const SandpackPreview = BaseComponent('SandpackPreview', false, _SandpackPreview);
 
 //type: viewer, editor, preview, both, device: phone, web
-export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', title = '', files,
-    code, customSetup, options, highlight, height = 500, flavor = readFlavor('default'),
-    ...attributes} = {}) => {
+export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', title = '', 
+    files={}, code, customSetup={}, options={}, highlight, height = 500, 
+    flavor = readFlavor('default'), ...attributes} = {}) => {
     // template = 'oneJS';
-    if(template === 'oneJS') {
+    if(template === 'oneJS' && type != 'viewer') {
         customSetup = {
             dependencies: {
                 react: "18.2.0",
@@ -387,6 +398,7 @@ export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', 
                 "@onejs-dev/components": '0.0.16'
             },
             entry: "/App.js",
+            ...customSetup
         };
         files = {
             '/App.js': code ??
@@ -429,17 +441,40 @@ App({ theme: "oneJS", state: state })(template);
             </html>            
             `,
                 hidden: true
-            }
+            },
+            ...files
         };
         template = 'react';
     }
+    else if(type === 'viewer' && !(files & Object.keys(files).length > 0)) {
+        const fileName = (typeof title === 'string' && title !== '') ? title : '/App.js';
+        files[fileName] = code ?? `console.log('Hello World');`;
+    }
+
+    //Highlight lines
+    let decorators = [];
+    let decoratorsStyle = {};
+    if(Array.isArray(highlight) && highlight.length > 0) {
+        decoratorsStyle = {
+            '& .highlight': {
+                background: '#094DFF2b',
+                borderRadius: (flavor?.radius > 0) ? 4 : 0
+            }
+        }
+        highlight.forEach(lineNumber => {
+            decorators.push({className: 'highlight', line: lineNumber});
+        });        
+    }
+    attributes['style'] = mergeStyles(decoratorsStyle, attributes['style']);
+
     const editorOptions = {
-        showTabs: options?.showTabs ?? true,     // you can force tabs to always be shown/hidden with the showTabs prop.
-        closableTabs: options?.closableTabs ?? true, //allows you to add a small close button for each tab, which removes it from the list
+        showTabs: options?.showTabs ?? type === 'viewer' ? false : true,     // you can force tabs to always be shown/hidden with the showTabs prop.
+        // closableTabs: options?.closableTabs ?? true, //allows you to add a small close button for each tab, which removes it from the list
         readOnly: options?.readOnly ?? false, // makes the entire project non-editable. 
         showLineNumbers: options?.showLineNumbers ?? false, // default - true
-        showInlineErrors: options?.showInlineErrors ?? false, // default - false
+        // showInlineErrors: options?.showInlineErrors ?? false, // default - false
         wrapContent: options?.wrapContent ?? false, // default - false
+        decorators: decorators
     };
 
     const providerOptions = {
@@ -494,7 +529,7 @@ App({ theme: "oneJS", state: state })(template);
                 flavor: flavor, style: editorStyle
             })(SandpackCodeEditor(editorOptions)),
             //Code Preview
-            (type === 'both' || type === 'editor') && device === 'phone' ?
+            (type === 'both' || type === 'preview') && (device === 'phone' ?
                 View({content: {direction: 'column', h: 'stretch', v: 'top'}, style: phoneStyle})([
                     title && View({content: {h: 'center', v: 'center'}, style: titleBarStyle})(
                         Text({style: titleTextStyle})(title)),
@@ -502,19 +537,10 @@ App({ theme: "oneJS", state: state })(template);
                 ]) :
                 View({
                     flavor: flavor, style: previewStyle, self: {expand: 1}
-                })(SandpackPreview({style: {height: '100%'}, ...previewOptions})),
+                })(SandpackPreview({style: {height: '100%'}, ...previewOptions}))),
         ])
         // ])
     ]);
-
-    //  <SandpackProvider template="react">
-    //     <SandpackLayout>
-    //       <SandpackCodeViewer />
-    //       <SandpackPreview />
-    //     </SandpackLayout>
-    //   </SandpackProvider>
-
-
 };
 
 const TextEditor = Component('TextEditor', true, ({language = 'javascript', title = '', os = 'web',
