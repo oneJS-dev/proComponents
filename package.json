@@ -1,6 +1,6 @@
 {
   "name": "@onejs-dev/procomponents",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Web and native advanced components for oneJS apps.",
   "main": "procomponents.js",
   "react-native": "procomponents.native.js",
