@@ -23,14 +23,14 @@ const navbarMenuIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100
 3V67z"/></g>
 <g><path d="M100,92c0,1.65-1.35,3-3,3H3c-1.65,0-3-1.35-3-3v-4c0-1.65,1.35-3,3-3h94c1.65,0,3,1.35,3,
 3V92z"/></g></svg>`;
-export const Navbar = Component('Navbar', false, ({position='top', size, items, 
-    menuIcon=navbarMenuIcon, menuCollapse='tablet', flavor = readFlavor('default'),
+export const Navbar = Component('Navbar', false, ({position = 'top', size, items,
+    menuIcon = navbarMenuIcon, menuCollapse = 'tablet', flavor = readFlavor('default'),
     ...attributes} = {}) => {
     let [menuVisible, setMenuVisible] = React.useState(false);
-    let [currentUrl, setCurrentUrl] = React.useState(decodeURI(location.pathname + 
+    let [currentUrl, setCurrentUrl] = React.useState(decodeURI(location.pathname +
         location.search));
     React.useEffect(() => {
-        window.addEventListener('urlChange', 
+        window.addEventListener('urlChange',
             (e) => setCurrentUrl(decodeURI(location.pathname + location.search)), false);
     }, []);
     if(!(items?.length > 0)) return null;
@@ -65,8 +65,6 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
         paddingInline: 'max(20px, 5vw)',
         cursor: 'pointer'
     };
-    const test = () => {return {background: 'pink'};};
-
     const itemContainerStyle = {
         paddingInline: 'max(20px, 5vw)',
         display: 'flex',
@@ -75,26 +73,27 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
     };
     const itemStyle = {
         transitionDuration: '0.4s',
-        cursor: 'pointer',
         position: 'relative',
         height: '100%',
         '&:hover > div': {
             visibility: 'visible'
-        },
-        '&:hover > p': {
-            textDecoration: 'underline'
-        },
+        },        
         display: 'flex',
         visibility: 'visible',
         flexBasis: 0,
         ...media({device: menuCollapse})({display: 'none !important'})
+    };
+    const itemViewStyle = {
+        cursor: 'pointer',
+        '&:hover > p': {
+            textDecoration: 'underline'
+        },
     };
     const subitemStyle = {
         visibility: 'hidden',
         position: 'absolute',
         top: 80,
         width: 'max-content',
-        // minWidth: 200,
         maxWidth: 400,
         overflow: 'hidden',
         boxSizing: 'border-box',
@@ -105,9 +104,9 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
         }
     };
     const subitemTextStyle = {
+        zIndex: 10,
         lineHeight: 3,
         paddingInline: 20,
-        // textAlign: 'center',
         '&:hover': {
             background: flavor?.lightColor ?? '#ccc'
         }
@@ -137,24 +136,28 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
         ...media({device: menuCollapse})({display: 'flex !important'})
     };
     const collapsedItemStyle = {
-        paddingLeft: 20, 
-        minHeight: 50, 
+        paddingLeft: 20,
+        minHeight: 50,
         cursor: 'pointer'
     };
     const collapsedItemTextStyle = {
-        display: 'flex', 
-        flexGrow: 1, 
+        display: 'flex',
+        flexGrow: 1,
         fontWeight: 'bold'
-    };  
+    };
     const collapsedSubitemTextStyle = {
-        paddingLeft: 40, 
-        lineHeight: 2.5, 
+        paddingLeft: 40,
+        lineHeight: 2.5,
         fontSize: flavor?.textSize > 0 ? Math.round(flavor.textSize * 0.9) : 14
-    }  
-    const activeFlavor = {...flavor, textColor: flavor?.primaryColor ?? 'blue', 
-        primaryColor: flavor?.primaryColor ?? 'blue'};
-    const inactiveFlavor = {...flavor, textColor: flavor?.darkColor ?? '#666', 
-        primaryColor: flavor?.darkColor ?? '#666'};
+    };
+    const activeFlavor = {
+        ...flavor, textColor: flavor?.primaryColor ?? 'blue',
+        primaryColor: flavor?.primaryColor ?? 'blue'
+    };
+    const inactiveFlavor = {
+        ...flavor, textColor: flavor?.darkColor ?? '#666',
+        primaryColor: flavor?.darkColor ?? '#666'
+    };
     const menuFlavor = {...flavor, textWeight: 'bold'};
 
     const matchUrl = (targetUrl, currentUrl) => {
@@ -165,10 +168,10 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
             if(targetUrlArray[index] !== currentUrlArray[index]) isMatch = false;
         });
         return isMatch;
-    }
+    };
 
     return [View({
-        type: 'navbar', content: {h: 'center', v: 'center'}, key: 'navbar', style: navbarStyle, 
+        type: 'navbar', content: {h: 'center', v: 'center'}, key: 'navbar', style: navbarStyle,
         ...attributes
     })([
         //Logo
@@ -184,72 +187,83 @@ export const Navbar = Component('Navbar', false, ({position='top', size, items,
             let hasSubitems = item.items?.length > 0;
             if(item.logo) return;
             return View({
-                url: item.url, content: {h: 'center', v: 'center', direction: 'column'},
+                content: {h: 'center', v: 'center', direction: 'column'},
                 self: {shrink: 0, expand: 1}, style: itemStyle, key: index //Important Key
             })([
-                //Item Icon
-                item.icon && Icon({
-                    icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor, key: 'icon'
-                }),
-                //Item Text
-                item.text && Text({
-                    flavor: isActive ? activeFlavor : inactiveFlavor, key: 'text'
-                })(item.text + (hasSubitems ? ' 🞃' : '')),
+                View({
+                    content: {h: 'center', v: 'center', direction: 'column'}, style: itemViewStyle,
+                    self: {align: 'stretch', shrink: 0, expand: 1}, url: item.url, key: 'view'
+                })([
+                    //Item Icon
+                    item.icon && Icon({
+                        icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor, 
+                        key: 'icon'
+                    }),
+                    //Item Text
+                    item.text && Text({
+                        flavor: isActive ? activeFlavor : inactiveFlavor, key: 'text'
+                    })(item.text + (hasSubitems ? ' 🞃' : ''))
+                ]),
                 //Subitems
                 hasSubitems && View({
                     content: {h: 'stretch', v: 'left', direction: 'column'}, flavor: flavor,
                     style: subitemStyle, key: 'view' + index
-                })(item.items.map((subitem, subindex) => Text({
-                    flavor: flavor, style: subitemTextStyle, key: index + subindex //Important Key
-                })(subitem.text)))
+                })(item.items.map((subitem, subindex) => {
+                    let isSubitemActive = matchUrl(subitem.url, currentUrl);
+                    return Text({
+                        flavor: isSubitemActive ? activeFlavor : inactiveFlavor, 
+                        style: subitemTextStyle, url: subitem.url, key: index + subindex //Important Key
+                    })(subitem.text)
+                }))
             ]);
         })]),
         //Collapsed Items
         Icon({
             icon: menuIcon, flavor: menuVisible ? activeFlavor : inactiveFlavor,
-            onClick: () => setMenuVisible(true), style: menuIconStyle, key: 'menuIcon' }),  
-        ]), Modal({
-            visible: menuVisible, style: menuStyle, animation: {visible: ['fade-in', 'fade-out']}, 
-            backdrop: false, flavor: menuFlavor, closeIcon: false, key: 'modal',
-            footer: [Input({
-                type: 'button', title: 'Close', flavor: readFlavor('reject'), 
-                onClick: () => setMenuVisible(false)
-            })]
-        })([//Collapsed menu
-            View({
-                content: {h: 'left', v: 'top', direction: 'column'}, self: {align: 'stretch'}, 
-                style: {overflow: 'auto'}, key: 'collapsed' //Important key
-            })([items.map((item, index) => {
-                    let isActive = matchUrl(item.url, currentUrl);
-                    let hasSubitems = item.items?.length > 0;
-                    if(item.logo) return;
-                    //Collapsed items
+            onClick: () => setMenuVisible(true), style: menuIconStyle, key: 'menuIcon'
+        }),
+    ]), Modal({
+        visible: menuVisible, style: menuStyle, animation: {visible: ['fade-in', 'fade-out']},
+        backdrop: false, flavor: menuFlavor, closeIcon: false, key: 'modal',
+        footer: [Input({
+            type: 'button', title: 'Close', flavor: readFlavor('reject'),
+            onClick: () => setMenuVisible(false)
+        })]
+    })([//Collapsed menu
+        View({
+            content: {h: 'left', v: 'top', direction: 'column'}, self: {align: 'stretch'},
+            style: {overflow: 'auto'}, key: 'collapsed' //Important key
+        })([items.map((item, index) => {
+            let isActive = matchUrl(item.url, currentUrl);
+            let hasSubitems = item.items?.length > 0;
+            if(item.logo) return;
+            //Collapsed items
+            return [View({
+                content: {h: 'left', v: 'center', gap: 20}, self: {align: 'stretch'},
+                style: collapsedItemStyle, url: item.url, key: index,
+                onClick: () => {setMenuVisible(false);}
+            })([//Collapsed item icon
+                item.icon && Icon({
+                    icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor,
+                    key: 'icon'
+                }),
+                //Collapsed item text
+                item.text && Text({
+                    flavor: isActive ? activeFlavor : inactiveFlavor,
+                    style: collapsedItemTextStyle, key: 'text'
+                })(item.text + (hasSubitems ? ' 🞃' : '')),
+            ]),
+                //Subitems
+                hasSubitems && item.items.map((subitem, subindex) => {
+                    let isSubitemActive = matchUrl(subitem.url, currentUrl);
                     return View({
-                        content: {h: 'left', v: 'center', gap: 20}, self: {align: 'stretch'}, 
-                        style: collapsedItemStyle, url: item.url, key: index,
-                        onClick: () => {setMenuVisible(false)}
-                    })([//Collapsed item icon
-                        item.icon && Icon({
-                            icon: item.icon, flavor: isActive ? activeFlavor : inactiveFlavor, 
-                            key: 'icon'
-                        }),
-                        //Collapsed item text
-                        item.text && Text({
-                            flavor: isActive ? activeFlavor : inactiveFlavor, 
-                            style: collapsedItemTextStyle, key: 'text'
-                        })(item.text + (hasSubitems ? ' 🞃' : '')),
-                    ]),
-                    //Subitems
-                    hasSubitems && item.items.map((subitem, subindex) => {
-                        let isSubitemActive = matchUrl(subitem.url, currentUrl);
-                        return View({
-                            self: {align: 'stretch'}, url: subitem.url,
-                            onClick: () => {setMenuVisible(false)}, key: subindex, //Important key
-                            style: {cursor: 'pointer'}
-                        })(Text({
-                            flavor: isSubitemActive ? activeFlavor : inactiveFlavor, 
-                            style: collapsedSubitemTextStyle, key: 'text' + subindex
-                    })(subitem.text))})
+                        self: {align: 'stretch'}, url: subitem.url,
+                        onClick: () => {setMenuVisible(false);}, key: subindex, //Important key
+                        style: {cursor: 'pointer'}
+                    })(Text({
+                        flavor: isSubitemActive ? activeFlavor : inactiveFlavor,
+                        style: collapsedSubitemTextStyle, key: 'text' + subindex
+                    })(subitem.text))})]
                 })
             ])
         ])
@@ -386,11 +400,11 @@ const SandpackCodeViewer = BaseComponent('SandpackCodeViewer', false, _SandpackC
 const SandpackPreview = BaseComponent('SandpackPreview', false, _SandpackPreview);
 
 //type: viewer, editor, preview, both, device: phone, web
-export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', title = '', 
-    files={}, code, customSetup={}, options={}, highlight, height = 500, 
+export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', title = '',
+    files = {}, code, customSetup = {}, options = {}, highlight, size,
     flavor = readFlavor('default'), ...attributes} = {}) => {
     // template = 'oneJS';
-    if(template === 'oneJS' && type != 'viewer') {
+    if(template === 'oneJS' && type !== 'viewer') {
         customSetup = {
             dependencies: {
                 react: "18.2.0",
@@ -446,9 +460,14 @@ App({ theme: "oneJS", state: state })(template);
         };
         template = 'react';
     }
-    else if(type === 'viewer' && !(files & Object.keys(files).length > 0)) {
+    else if(type === 'viewer' && !(files && Object.keys(files).length > 0)) {
         const fileName = (typeof title === 'string' && title !== '') ? title : '/App.js';
-        files[fileName] = code ?? `console.log('Hello World');`;
+        files[fileName] = {code: code ?? `console.log('Hello World');`, active: true};
+        // customSetup = {
+        //     entry: fileName,
+        //     ...customSetup
+        // };
+        // console.log(customSetup)
     }
 
     //Highlight lines
@@ -460,10 +479,10 @@ App({ theme: "oneJS", state: state })(template);
                 background: '#094DFF2b',
                 borderRadius: (flavor?.radius > 0) ? 4 : 0
             }
-        }
+        };
         highlight.forEach(lineNumber => {
             decorators.push({className: 'highlight', line: lineNumber});
-        });        
+        });
     }
     attributes['style'] = mergeStyles(decoratorsStyle, attributes['style']);
 
@@ -486,22 +505,23 @@ App({ theme: "oneJS", state: state })(template);
 
     const editorStyle = {
         overflow: 'auto',
-        maxHeight: height,
+        width: size?.width ?? 'auto',
+        maxHeight: size?.height ?? 500,
         maxWidth: '90vw'
     };
 
     const previewStyle = {
         overflow: 'auto',
-        height: height,
-        maxHeight: height,
+        height: size?.height ?? 500,
+        maxHeight: size?.height ?? 500,
         maxWidth: '90vw'
     };
 
     const phoneStyle = {
         border: '10px solid black',
         borderRadius: 40,
-        width: 250,
-        height: 500,
+        width: size?.height > 0 ? Math.round(size.height / 2) : 250,
+        height: size?.height ?? 500,
         overflow: 'hidden'
         // marginLeft: 50
     };
