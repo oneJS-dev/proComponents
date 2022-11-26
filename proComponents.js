@@ -409,7 +409,7 @@ export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', 
             dependencies: {
                 react: "18.2.0",
                 "react-dom": "18.2.0",
-                "@onejs-dev/components": '0.0.20',
+                "@onejs-dev/components": '0.0.21',
                 ...dependencies
             },
             entry: "/App.js",
