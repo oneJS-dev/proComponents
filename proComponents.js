@@ -401,7 +401,7 @@ const SandpackPreview = BaseComponent('SandpackPreview', false, _SandpackPreview
 
 //type: viewer, editor, preview, both, device: phone, web
 export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', title = '',
-    files = {}, code, customSetup = {}, options = {}, highlight, size,
+    files = {}, code, dependencies={}, customSetup = {}, options = {}, highlight, size,
     flavor = readFlavor('default'), ...attributes} = {}) => {
     // template = 'oneJS';
     if(template === 'oneJS' && type !== 'viewer') {
@@ -409,7 +409,8 @@ export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', 
             dependencies: {
                 react: "18.2.0",
                 "react-dom": "18.2.0",
-                "@onejs-dev/components": '0.0.16'
+                "@onejs-dev/components": '0.0.20',
+                ...dependencies
             },
             entry: "/App.js",
             ...customSetup
@@ -460,14 +461,15 @@ App({ theme: "oneJS", state: state })(template);
         };
         template = 'react';
     }
+    else if(type !== 'viewer' &&  Object.keys(dependencies).length > 0) {
+        customSetup = {
+            dependencies: dependencies,
+            ...customSetup
+        };
+    }
     else if(type === 'viewer' && !(files && Object.keys(files).length > 0)) {
         const fileName = (typeof title === 'string' && title !== '') ? title : '/App.js';
         files[fileName] = {code: code ?? `console.log('Hello World');`, active: true};
-        // customSetup = {
-        //     entry: fileName,
-        //     ...customSetup
-        // };
-        // console.log(customSetup)
     }
 
     //Highlight lines
