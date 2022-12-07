@@ -409,7 +409,7 @@ export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', 
             dependencies: {
                 react: "18.2.0",
                 "react-dom": "18.2.0",
-                "@onejs-dev/components": '0.0.23',
+                "@onejs-dev/components": '0.0.24',
                 ...dependencies
             },
             entry: "/App.js",
@@ -514,9 +514,9 @@ App({ theme: "oneJS", state: state })(template);
 
     const previewStyle = {
         overflow: 'auto',
+        maxWidth: size?.width ?? '90vw',
         height: size?.height ?? 500,
         maxHeight: size?.height ?? 500,
-        maxWidth: '90vw'
     };
 
     const phoneStyle = {
