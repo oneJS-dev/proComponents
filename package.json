@@ -15,7 +15,7 @@
   },
   "homepage": "https://oneJS.dev",
   "dependencies": {
-    "@onejs-dev/components": "^0.0.26",
+    "@onejs-dev/components": "^0.0.27",
     "@codesandbox/sandpack-react": "^1.15.2"
   }
 }
