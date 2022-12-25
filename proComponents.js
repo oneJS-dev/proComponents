@@ -409,7 +409,7 @@ export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', 
             dependencies: {
                 react: "18.2.0",
                 "react-dom": "18.2.0",
-                "@onejs-dev/components": '0.0.27',
+                "@onejs-dev/components": '0.0.28',
                 ...dependencies
             },
             entry: "/App.js",
@@ -539,9 +539,15 @@ App({ theme: "oneJS", state: state })(template);
 
     template = 'react';
 
+    let content = {h: 'center', v: 'stretch', direction: 'row', wrap: true, gap: 40};
+    if(attributes['content']) {
+        content = {...content, ...attributes['content']};
+        delete attributes['content'];
+    }
+
     return SandpackProvider({template: template, files: files, customSetup: customSetup, options: providerOptions, ...attributes})([
         // SandpackLayout()([
-        View({content: {h: 'center', v: 'stretch', direction: 'row', wrap: true, gap: 40}})([
+        View({content: content})([
             //Code Viewer
             type === 'viewer' && View({
                 flavor: flavor, style: editorStyle
