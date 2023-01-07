@@ -16,7 +16,8 @@ import {
     SandpackPreview as _SandpackPreview,
 } from "@codesandbox/sandpack-react";
 
-const navbarMenuIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+const navbarMenuIcon = 
+`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
 <circle cx="50" cy="15" r="10"/><g><path d="M100,42c0,1.65-1.35,3-3,3H3c-1.65,
 0-3-1.35-3-3v-4c0-1.65,1.35-3,3-3h94c1.65,0,3,1.35,3,3V42z"/></g>
 <g><path d="M100,67c0,1.65-1.35,3-3,3H3c-1.65,0-3-1.35-3-3v-4c0-1.65,1.35-3,3-3h94c1.65,0,3,1.35,3,
@@ -95,8 +96,10 @@ export const Navbar = Component('Navbar', false, ({position = 'top', size, items
         top: 80,
         width: 'max-content',
         maxWidth: 400,
-        overflow: 'hidden',
+        maxHeight: '80vh',
+        overflow: 'auto',
         boxSizing: 'border-box',
+        cursor: 'pointer',
         '& p:not(:first-child)': {
             borderTopWidth: flavor?.borderWidth ?? 1,
             borderTopStyle: flavor?.borderStyle ?? 'solid',
@@ -202,7 +205,7 @@ export const Navbar = Component('Navbar', false, ({position = 'top', size, items
                     //Item Text
                     item.text && Text({
                         flavor: isActive ? activeFlavor : inactiveFlavor, key: 'text'
-                    })(item.text + (hasSubitems ? ' 🞃' : ''))
+                    })(item.text + (hasSubitems ? ' ▼' : ''))
                 ]),
                 //Subitems
                 hasSubitems && View({
@@ -251,7 +254,7 @@ export const Navbar = Component('Navbar', false, ({position = 'top', size, items
                 item.text && Text({
                     flavor: isActive ? activeFlavor : inactiveFlavor,
                     style: collapsedItemTextStyle, key: 'text'
-                })(item.text + (hasSubitems ? ' 🞃' : '')),
+                })(item.text + (hasSubitems ? ' ▼' : '')),
             ]),
                 //Subitems
                 hasSubitems && item.items.map((subitem, subindex) => {
@@ -409,7 +412,7 @@ export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', 
             dependencies: {
                 react: "18.2.0",
                 "react-dom": "18.2.0",
-                "@onejs-dev/components": '0.0.29',
+                "@onejs-dev/components": '0.0.35',
                 ...dependencies
             },
             entry: "/App.js",
@@ -417,25 +420,23 @@ export const CodeDisplay = ({type = 'both', device = 'web', template = 'react', 
         };
         files = {
             '/App.js': code ??
-                `/* Imports: Required modules to setup the app =================================================== */
-import { App, read, update } from "@onejs-dev/core";
+`/* Imports: Required modules to setup the app ================================================== */
+import { app, read, update } from "@onejs-dev/core";
 import { Text, View, Input } from "@onejs-dev/components";
 
-/* State: Any variable subject to change needs to be part of the state ========================== */
+/* State: Variable declaration  ================================================================= */
 const state = { name: "World" };
 
-/* Template function: Returns the structure to be rendered ====================================== */
-const template = () => {
-    return [
-    View({ content: { h: "center", v: "center", direction: "column" } })([
+/* App Component: Returns the structure to be rendered ========================================== */
+const AppComponent = () => {
+    return View({ content: { h: "center", v: "center", direction: "column" } })([
         Text({ style: { fontSize: 22, paddingBlock: 60 } })(\`Hello \${read("name")}!\`),
         Input({ type: "text", value: read("name"), onChange: update("name") })
-    ])
-    ];
+    ]);
 };
 
-/* App: Run the app with the parameters provided ================================================ */
-App({ theme: "oneJS", state: state })(template);
+/* App Function: Renders the App Component in the screen ======================================== */
+app({component: AppComponent, theme: {preset: "oneJS"}, state: state });
 
 /* Learn: Refer to the docs section to learn all about oneJS: https://onejs.dev/docs============= */`,
             '/public/index.html': {
